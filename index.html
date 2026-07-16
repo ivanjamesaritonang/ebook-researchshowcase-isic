@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Book Desain — Flipbook</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #2b2b2b;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    overflow: hidden;
+  }
+  #wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  h1 {
+    color: #eee;
+    font-size: 16px;
+    font-weight: 500;
+    margin: 12px 0;
+    letter-spacing: 0.5px;
+  }
+  #book {
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  #book img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .controls {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+  }
+  .controls button {
+    background: #444;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .controls button:hover {
+    background: #666;
+  }
+</style>
+</head>
+<body>
+<div id="wrapper">
+  <h1>Nama E-Book Kalian Di Sini</h1>
+  <div id="book"></div>
+  <div class="controls">
+    <button onclick="pageFlip.flipPrev()">‹ Sebelumnya</button>
+    <button onclick="pageFlip.flipNext()">Berikutnya ›</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+<script>
+  // DAFTAR HALAMAN
+  // Ganti path di bawah ini dengan file gambar halaman kalian sendiri.
+  // Format: pages/nama-file.jpg (urut sesuai urutan baca)
+  const pageImages = [
+    "pages/page-01.jpg",
+    "pages/page-02.jpg",
+    "pages/page-03.jpg",
+    "pages/page-04.jpg",
+    "pages/page-05.jpg",
+    "pages/page-06.jpg"
+  ];
+
+  const bookEl = document.getElementById("book");
+
+  // Buat elemen halaman dari daftar gambar
+  pageImages.forEach(src => {
+    const page = document.createElement("div");
+    page.className = "page";
+    const img = document.createElement("img");
+    img.src = src;
+    page.appendChild(img);
+    bookEl.appendChild(page);
+  });
+
+  const pageFlip = new St.PageFlip(bookEl, {
+    width: 400,
+    height: 566,           // rasio A4-ish; sesuaikan dengan proporsi desain kalian
+    size: "stretch",
+    minWidth: 300,
+    maxWidth: 1000,
+    minHeight: 400,
+    maxHeight: 1400,
+    maxShadowOpacity: 0.5,
+    showCover: true,
+    mobileScrollSupport: true
+  });
+
+  pageFlip.loadFromHTML(document.querySelectorAll(".page"));
+</script>
+</body>
+</html>
