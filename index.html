@@ -19,7 +19,6 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    position: relative;
   }
   h1 {
     color: #eee;
@@ -27,14 +26,15 @@
     font-weight: 500;
     margin: 6px 0 12px;
     letter-spacing: 0.5px;
+    text-align: center;
+    padding: 0 20px;
   }
 
-  /* Toolbar */
   #toolbar {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     flex-wrap: wrap;
     justify-content: center;
     padding: 0 12px;
@@ -52,13 +52,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
   }
   #toolbar button:hover { background: #666; }
-  #toolbar button.active { background: #6a7fd6; }
 
-  #search-box {
-    position: relative;
-  }
+  #search-box { position: relative; }
   #search-input {
     background: #3a3a3a;
     color: #eee;
@@ -78,10 +76,9 @@
     background: #333;
     border-radius: 8px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-    overflow: hidden;
-    z-index: 20;
-    max-height: 260px;
     overflow-y: auto;
+    max-height: 260px;
+    z-index: 20;
     display: none;
   }
   #search-results.show { display: block; }
@@ -93,36 +90,17 @@
     border-bottom: 1px solid #444;
   }
   #search-results div:hover { background: #4a4a4a; }
-  #search-results .no-result {
-    color: #999;
-    cursor: default;
-  }
-
-  /* Stage wraps the book so we can zoom + widen it */
-  #stage {
-    max-width: 700px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    transition: max-width 0.25s ease;
-    overflow: visible;
-  }
-  #stage.wide {
-    max-width: 1100px;
-  }
-  #zoom-wrapper {
-    transition: transform 0.15s ease;
-  }
+  #search-results .no-result { color: #999; cursor: default; }
 
   #book-row {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 16px;
+    transform-origin: center;
+    transition: transform 0.15s ease;
   }
-  #book {
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  }
+  #book { box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
   #book img {
     width: 100%;
     height: 100%;
@@ -146,11 +124,7 @@
   }
   .side-arrow:hover { background: rgba(255,255,255,0.2); }
 
-  .controls {
-    margin-top: 14px;
-    display: flex;
-    gap: 10px;
-  }
+  .controls { margin-top: 14px; display: flex; gap: 10px; }
   .controls button {
     background: #444;
     color: #fff;
@@ -170,27 +144,22 @@
 </head>
 <body>
 <div id="wrapper">
-  <h1>Nama E-Book Kalian Di Sini</h1>
+  <h1>Research Showcase Indonesian Scholars International Convention</h1>
 
   <div id="toolbar">
     <button id="home-btn" title="Kembali ke cover">⌂</button>
     <button id="zoom-out-btn" title="Perkecil">−</button>
     <button id="zoom-in-btn" title="Perbesar">+</button>
-    <button id="wide-btn" title="Mode wide">⤢</button>
     <div id="search-box">
       <input id="search-input" type="text" placeholder="Cari isi halaman..." autocomplete="off">
       <div id="search-results"></div>
     </div>
   </div>
 
-  <div id="stage">
-    <div id="zoom-wrapper">
-      <div id="book-row">
-        <button class="side-arrow" onclick="pageFlip.flipPrev()" aria-label="Halaman sebelumnya">‹</button>
-        <div id="book"></div>
-        <button class="side-arrow" onclick="pageFlip.flipNext()" aria-label="Halaman berikutnya">›</button>
-      </div>
-    </div>
+  <div id="book-row">
+    <button class="side-arrow" onclick="pageFlip.flipPrev()" aria-label="Halaman sebelumnya">‹</button>
+    <div id="book"></div>
+    <button class="side-arrow" onclick="pageFlip.flipNext()" aria-label="Halaman berikutnya">›</button>
   </div>
 
   <div class="controls">
@@ -202,23 +171,15 @@
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 <script>
   // ====== DAFTAR HALAMAN ======
-  // Sesuai file asli: page-1.png, page-2.png, ... page-38.png (di root repo)
   const TOTAL_PAGES = 38;
   const pageImages = Array.from({ length: TOTAL_PAGES }, (_, i) => `page-${i + 1}.png`);
 
   // ====== LABEL / KATA KUNCI PER HALAMAN (untuk fitur pencarian) ======
-  // PENTING: isi ini manual sesuai isi asli tiap halaman kalian, contoh:
-  // pageLabels[0] = "Cover ISIC 2026 Festival of Ideas";
-  // pageLabels[4] = "Foreword dari ketua panitia";
-  // pageLabels[11] = "Peserta 8 - Nama Peserta - Judul Karya";
-  // Search akan mencocokkan kata yang diketik dengan teks di sini.
+  // Isi manual sesuai isi tiap halaman, contoh:
+  // pageLabels[0] = "Cover"; pageLabels[4] = "Foreword"; pageLabels[11] = "Peserta 8";
   const pageLabels = Array.from({ length: TOTAL_PAGES }, (_, i) => `Halaman ${i + 1}`);
-  // Contoh isi manual (hapus komentar // dan sesuaikan):
-  // pageLabels[0] = "Cover";
-  // pageLabels[1] = "Foreword";
 
   const bookEl = document.getElementById("book");
-
   pageImages.forEach(src => {
     const page = document.createElement("div");
     page.className = "page";
@@ -233,43 +194,34 @@
     height: 566,
     size: "stretch",
     minWidth: 300,
-    maxWidth: 700,
+    maxWidth: 900,      // cukup lebar untuk spread 2 halaman di tengah, cover/penutup tetap tampil sendiri
     minHeight: 400,
-    maxHeight: 1000,
+    maxHeight: 1200,
     maxShadowOpacity: 0.5,
-    showCover: true,
+    showCover: true,    // cover & halaman terakhir tampil single, halaman isi tampil spread
     mobileScrollSupport: true
   });
 
   pageFlip.loadFromHTML(document.querySelectorAll(".page"));
 
-  // ====== TOMBOL HOME (kembali ke cover) ======
+  // ====== HOME (kembali ke cover) ======
   document.getElementById("home-btn").addEventListener("click", () => {
     pageFlip.turnToPage(0);
   });
 
-  // ====== ZOOM IN / OUT ======
+  // ====== ZOOM ======
   let zoomLevel = 1;
-  const zoomWrapper = document.getElementById("zoom-wrapper");
+  const bookRow = document.getElementById("book-row");
   function applyZoom() {
-    zoomWrapper.style.transform = `scale(${zoomLevel})`;
+    bookRow.style.transform = `scale(${zoomLevel})`;
   }
   document.getElementById("zoom-in-btn").addEventListener("click", () => {
-    zoomLevel = Math.min(zoomLevel + 0.15, 2);
+    zoomLevel = Math.min(zoomLevel + 0.15, 1.8);
     applyZoom();
   });
   document.getElementById("zoom-out-btn").addEventListener("click", () => {
     zoomLevel = Math.max(zoomLevel - 0.15, 0.5);
     applyZoom();
-  });
-
-  // ====== MODE WIDE ======
-  const stage = document.getElementById("stage");
-  const wideBtn = document.getElementById("wide-btn");
-  wideBtn.addEventListener("click", () => {
-    stage.classList.toggle("wide");
-    wideBtn.classList.toggle("active");
-    setTimeout(() => pageFlip.update(), 260);
   });
 
   // ====== PENCARIAN ======
@@ -288,13 +240,9 @@
       .filter(item => item.label.toLowerCase().includes(q))
       .slice(0, 8);
 
-    if (matches.length === 0) {
-      searchResults.innerHTML = `<div class="no-result">Tidak ditemukan</div>`;
-    } else {
-      searchResults.innerHTML = matches
-        .map(m => `<div data-page="${m.idx}">Hal. ${m.idx + 1} — ${m.label}</div>`)
-        .join("");
-    }
+    searchResults.innerHTML = matches.length === 0
+      ? `<div class="no-result">Tidak ditemukan</div>`
+      : matches.map(m => `<div data-page="${m.idx}">Hal. ${m.idx + 1} — ${m.label}</div>`).join("");
     searchResults.classList.add("show");
   }
 
@@ -303,8 +251,7 @@
   searchResults.addEventListener("click", (e) => {
     const target = e.target.closest("[data-page]");
     if (!target) return;
-    const pageIdx = parseInt(target.getAttribute("data-page"), 10);
-    pageFlip.turnToPage(pageIdx);
+    pageFlip.turnToPage(parseInt(target.getAttribute("data-page"), 10));
     searchResults.classList.remove("show");
     searchInput.value = "";
   });
