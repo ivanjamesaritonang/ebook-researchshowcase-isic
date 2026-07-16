@@ -24,81 +24,16 @@
     color: #eee;
     font-size: 16px;
     font-weight: 500;
-    margin: 6px 0 12px;
+    margin: 12px 0;
     letter-spacing: 0.5px;
     text-align: center;
     padding: 0 20px;
   }
-
-  #toolbar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 0 12px;
-    position: relative;
-  }
-  #toolbar button {
-    background: #444;
-    color: #fff;
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  #toolbar button:hover { background: #666; }
-
-  #search-box { position: relative; }
-  #search-input {
-    background: #3a3a3a;
-    color: #eee;
-    border: 1px solid #555;
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 14px;
-    width: 180px;
-    outline: none;
-  }
-  #search-input:focus { border-color: #6a7fd6; }
-  #search-results {
-    position: absolute;
-    top: 42px;
-    left: 0;
-    width: 260px;
-    background: #333;
-    border-radius: 8px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-    overflow-y: auto;
-    max-height: 260px;
-    z-index: 20;
-    display: none;
-  }
-  #search-results.show { display: block; }
-  #search-results div {
-    padding: 10px 14px;
-    color: #eee;
-    font-size: 13px;
-    cursor: pointer;
-    border-bottom: 1px solid #444;
-  }
-  #search-results div:hover { background: #4a4a4a; }
-  #search-results .no-result { color: #999; cursor: default; }
-
   #book-row {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 16px;
-    transform-origin: center;
-    transition: transform 0.15s ease;
   }
   #book { box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
   #book img {
@@ -119,11 +54,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
     flex-shrink: 0;
   }
   .side-arrow:hover { background: rgba(255,255,255,0.2); }
-
   .controls { margin-top: 14px; display: flex; gap: 10px; }
   .controls button {
     background: #444;
@@ -135,33 +68,19 @@
     font-size: 14px;
   }
   .controls button:hover { background: #666; }
-
   @media (max-width: 700px) {
     .side-arrow { width: 36px; height: 36px; font-size: 16px; }
-    #search-input { width: 120px; }
   }
 </style>
 </head>
 <body>
 <div id="wrapper">
   <h1>Research Showcase Indonesian Scholars International Convention</h1>
-
-  <div id="toolbar">
-    <button id="home-btn" title="Kembali ke cover">⌂</button>
-    <button id="zoom-out-btn" title="Perkecil">−</button>
-    <button id="zoom-in-btn" title="Perbesar">+</button>
-    <div id="search-box">
-      <input id="search-input" type="text" placeholder="Cari isi halaman..." autocomplete="off">
-      <div id="search-results"></div>
-    </div>
-  </div>
-
   <div id="book-row">
     <button class="side-arrow" onclick="pageFlip.flipPrev()" aria-label="Halaman sebelumnya">‹</button>
     <div id="book"></div>
     <button class="side-arrow" onclick="pageFlip.flipNext()" aria-label="Halaman berikutnya">›</button>
   </div>
-
   <div class="controls">
     <button onclick="pageFlip.flipPrev()">‹ Sebelumnya</button>
     <button onclick="pageFlip.flipNext()">Berikutnya ›</button>
@@ -170,14 +89,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 <script>
-  // ====== DAFTAR HALAMAN ======
   const TOTAL_PAGES = 38;
   const pageImages = Array.from({ length: TOTAL_PAGES }, (_, i) => `page-${i + 1}.png`);
-
-  // ====== LABEL / KATA KUNCI PER HALAMAN (untuk fitur pencarian) ======
-  // Isi manual sesuai isi tiap halaman, contoh:
-  // pageLabels[0] = "Cover"; pageLabels[4] = "Foreword"; pageLabels[11] = "Peserta 8";
-  const pageLabels = Array.from({ length: TOTAL_PAGES }, (_, i) => `Halaman ${i + 1}`);
 
   const bookEl = document.getElementById("book");
   pageImages.forEach(src => {
@@ -194,73 +107,15 @@
     height: 566,
     size: "stretch",
     minWidth: 300,
-    maxWidth: 900,      // cukup lebar untuk spread 2 halaman di tengah, cover/penutup tetap tampil sendiri
+    maxWidth: 900,
     minHeight: 400,
     maxHeight: 1200,
     maxShadowOpacity: 0.5,
-    showCover: true,    // cover & halaman terakhir tampil single, halaman isi tampil spread
+    showCover: true,
     mobileScrollSupport: true
   });
 
   pageFlip.loadFromHTML(document.querySelectorAll(".page"));
-
-  // ====== HOME (kembali ke cover) ======
-  document.getElementById("home-btn").addEventListener("click", () => {
-    pageFlip.turnToPage(0);
-  });
-
-  // ====== ZOOM ======
-  let zoomLevel = 1;
-  const bookRow = document.getElementById("book-row");
-  function applyZoom() {
-    bookRow.style.transform = `scale(${zoomLevel})`;
-  }
-  document.getElementById("zoom-in-btn").addEventListener("click", () => {
-    zoomLevel = Math.min(zoomLevel + 0.15, 1.8);
-    applyZoom();
-  });
-  document.getElementById("zoom-out-btn").addEventListener("click", () => {
-    zoomLevel = Math.max(zoomLevel - 0.15, 0.5);
-    applyZoom();
-  });
-
-  // ====== PENCARIAN ======
-  const searchInput = document.getElementById("search-input");
-  const searchResults = document.getElementById("search-results");
-
-  function renderResults(query) {
-    const q = query.trim().toLowerCase();
-    if (!q) {
-      searchResults.classList.remove("show");
-      searchResults.innerHTML = "";
-      return;
-    }
-    const matches = pageLabels
-      .map((label, idx) => ({ idx, label }))
-      .filter(item => item.label.toLowerCase().includes(q))
-      .slice(0, 8);
-
-    searchResults.innerHTML = matches.length === 0
-      ? `<div class="no-result">Tidak ditemukan</div>`
-      : matches.map(m => `<div data-page="${m.idx}">Hal. ${m.idx + 1} — ${m.label}</div>`).join("");
-    searchResults.classList.add("show");
-  }
-
-  searchInput.addEventListener("input", (e) => renderResults(e.target.value));
-
-  searchResults.addEventListener("click", (e) => {
-    const target = e.target.closest("[data-page]");
-    if (!target) return;
-    pageFlip.turnToPage(parseInt(target.getAttribute("data-page"), 10));
-    searchResults.classList.remove("show");
-    searchInput.value = "";
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!document.getElementById("search-box").contains(e.target)) {
-      searchResults.classList.remove("show");
-    }
-  });
 </script>
 </body>
 </html>
