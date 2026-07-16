@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>E-Book Desain — Flipbook</title>
+<title>Research Showcase Indonesian Scholars International Convention</title>
 <style>
   html, body {
     margin: 0;
@@ -19,13 +19,106 @@
     align-items: center;
     justify-content: center;
     height: 100%;
+    position: relative;
   }
   h1 {
     color: #eee;
     font-size: 16px;
     font-weight: 500;
-    margin: 12px 0;
+    margin: 6px 0 12px;
     letter-spacing: 0.5px;
+  }
+
+  /* Toolbar */
+  #toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 12px;
+    position: relative;
+  }
+  #toolbar button {
+    background: #444;
+    color: #fff;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #toolbar button:hover { background: #666; }
+  #toolbar button.active { background: #6a7fd6; }
+
+  #search-box {
+    position: relative;
+  }
+  #search-input {
+    background: #3a3a3a;
+    color: #eee;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    width: 180px;
+    outline: none;
+  }
+  #search-input:focus { border-color: #6a7fd6; }
+  #search-results {
+    position: absolute;
+    top: 42px;
+    left: 0;
+    width: 260px;
+    background: #333;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    overflow: hidden;
+    z-index: 20;
+    max-height: 260px;
+    overflow-y: auto;
+    display: none;
+  }
+  #search-results.show { display: block; }
+  #search-results div {
+    padding: 10px 14px;
+    color: #eee;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 1px solid #444;
+  }
+  #search-results div:hover { background: #4a4a4a; }
+  #search-results .no-result {
+    color: #999;
+    cursor: default;
+  }
+
+  /* Stage wraps the book so we can zoom + widen it */
+  #stage {
+    max-width: 700px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    transition: max-width 0.25s ease;
+    overflow: visible;
+  }
+  #stage.wide {
+    max-width: 1100px;
+  }
+  #zoom-wrapper {
+    transition: transform 0.15s ease;
+  }
+
+  #book-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
   }
   #book {
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
@@ -36,6 +129,23 @@
     object-fit: cover;
     display: block;
   }
+  .side-arrow {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .side-arrow:hover { background: rgba(255,255,255,0.2); }
+
   .controls {
     margin-top: 14px;
     display: flex;
@@ -50,15 +160,39 @@
     cursor: pointer;
     font-size: 14px;
   }
-  .controls button:hover {
-    background: #666;
+  .controls button:hover { background: #666; }
+
+  @media (max-width: 700px) {
+    .side-arrow { width: 36px; height: 36px; font-size: 16px; }
+    #search-input { width: 120px; }
   }
 </style>
 </head>
 <body>
 <div id="wrapper">
   <h1>Nama E-Book Kalian Di Sini</h1>
-  <div id="book"></div>
+
+  <div id="toolbar">
+    <button id="home-btn" title="Kembali ke cover">⌂</button>
+    <button id="zoom-out-btn" title="Perkecil">−</button>
+    <button id="zoom-in-btn" title="Perbesar">+</button>
+    <button id="wide-btn" title="Mode wide">⤢</button>
+    <div id="search-box">
+      <input id="search-input" type="text" placeholder="Cari isi halaman..." autocomplete="off">
+      <div id="search-results"></div>
+    </div>
+  </div>
+
+  <div id="stage">
+    <div id="zoom-wrapper">
+      <div id="book-row">
+        <button class="side-arrow" onclick="pageFlip.flipPrev()" aria-label="Halaman sebelumnya">‹</button>
+        <div id="book"></div>
+        <button class="side-arrow" onclick="pageFlip.flipNext()" aria-label="Halaman berikutnya">›</button>
+      </div>
+    </div>
+  </div>
+
   <div class="controls">
     <button onclick="pageFlip.flipPrev()">‹ Sebelumnya</button>
     <button onclick="pageFlip.flipNext()">Berikutnya ›</button>
@@ -67,16 +201,24 @@
 
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 <script>
-  // DAFTAR HALAMAN — di-generate otomatis untuk 38 halaman
+  // ====== DAFTAR HALAMAN ======
   // Sesuai file asli: page-1.png, page-2.png, ... page-38.png (di root repo)
   const TOTAL_PAGES = 38;
-  const pageImages = Array.from({ length: TOTAL_PAGES }, (_, i) => {
-    return `page-${i + 1}.png`;
-  });
+  const pageImages = Array.from({ length: TOTAL_PAGES }, (_, i) => `page-${i + 1}.png`);
+
+  // ====== LABEL / KATA KUNCI PER HALAMAN (untuk fitur pencarian) ======
+  // PENTING: isi ini manual sesuai isi asli tiap halaman kalian, contoh:
+  // pageLabels[0] = "Cover ISIC 2026 Festival of Ideas";
+  // pageLabels[4] = "Foreword dari ketua panitia";
+  // pageLabels[11] = "Peserta 8 - Nama Peserta - Judul Karya";
+  // Search akan mencocokkan kata yang diketik dengan teks di sini.
+  const pageLabels = Array.from({ length: TOTAL_PAGES }, (_, i) => `Halaman ${i + 1}`);
+  // Contoh isi manual (hapus komentar // dan sesuaikan):
+  // pageLabels[0] = "Cover";
+  // pageLabels[1] = "Foreword";
 
   const bookEl = document.getElementById("book");
 
-  // Buat elemen halaman dari daftar gambar
   pageImages.forEach(src => {
     const page = document.createElement("div");
     page.className = "page";
@@ -88,18 +230,90 @@
 
   const pageFlip = new St.PageFlip(bookEl, {
     width: 400,
-    height: 566,           // rasio A4-ish; sesuaikan dengan proporsi desain kalian
+    height: 566,
     size: "stretch",
     minWidth: 300,
-    maxWidth: 1000,
+    maxWidth: 700,
     minHeight: 400,
-    maxHeight: 1400,
+    maxHeight: 1000,
     maxShadowOpacity: 0.5,
     showCover: true,
     mobileScrollSupport: true
   });
 
   pageFlip.loadFromHTML(document.querySelectorAll(".page"));
+
+  // ====== TOMBOL HOME (kembali ke cover) ======
+  document.getElementById("home-btn").addEventListener("click", () => {
+    pageFlip.turnToPage(0);
+  });
+
+  // ====== ZOOM IN / OUT ======
+  let zoomLevel = 1;
+  const zoomWrapper = document.getElementById("zoom-wrapper");
+  function applyZoom() {
+    zoomWrapper.style.transform = `scale(${zoomLevel})`;
+  }
+  document.getElementById("zoom-in-btn").addEventListener("click", () => {
+    zoomLevel = Math.min(zoomLevel + 0.15, 2);
+    applyZoom();
+  });
+  document.getElementById("zoom-out-btn").addEventListener("click", () => {
+    zoomLevel = Math.max(zoomLevel - 0.15, 0.5);
+    applyZoom();
+  });
+
+  // ====== MODE WIDE ======
+  const stage = document.getElementById("stage");
+  const wideBtn = document.getElementById("wide-btn");
+  wideBtn.addEventListener("click", () => {
+    stage.classList.toggle("wide");
+    wideBtn.classList.toggle("active");
+    setTimeout(() => pageFlip.update(), 260);
+  });
+
+  // ====== PENCARIAN ======
+  const searchInput = document.getElementById("search-input");
+  const searchResults = document.getElementById("search-results");
+
+  function renderResults(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) {
+      searchResults.classList.remove("show");
+      searchResults.innerHTML = "";
+      return;
+    }
+    const matches = pageLabels
+      .map((label, idx) => ({ idx, label }))
+      .filter(item => item.label.toLowerCase().includes(q))
+      .slice(0, 8);
+
+    if (matches.length === 0) {
+      searchResults.innerHTML = `<div class="no-result">Tidak ditemukan</div>`;
+    } else {
+      searchResults.innerHTML = matches
+        .map(m => `<div data-page="${m.idx}">Hal. ${m.idx + 1} — ${m.label}</div>`)
+        .join("");
+    }
+    searchResults.classList.add("show");
+  }
+
+  searchInput.addEventListener("input", (e) => renderResults(e.target.value));
+
+  searchResults.addEventListener("click", (e) => {
+    const target = e.target.closest("[data-page]");
+    if (!target) return;
+    const pageIdx = parseInt(target.getAttribute("data-page"), 10);
+    pageFlip.turnToPage(pageIdx);
+    searchResults.classList.remove("show");
+    searchInput.value = "";
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!document.getElementById("search-box").contains(e.target)) {
+      searchResults.classList.remove("show");
+    }
+  });
 </script>
 </body>
 </html>
