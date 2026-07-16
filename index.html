@@ -30,10 +30,12 @@
     padding: 0 20px;
   }
   #book-row {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16px;
+    width: 100%;
+    max-width: 900px;
   }
   #book { box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
   #book img {
@@ -43,6 +45,9 @@
     display: block;
   }
   .side-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     background: rgba(255,255,255,0.08);
     color: #fff;
     border: none;
@@ -54,8 +59,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    z-index: 10;
   }
+  .side-arrow.prev { left: -64px; }
+  .side-arrow.next { right: -64px; }
   .side-arrow:hover { background: rgba(255,255,255,0.2); }
   .controls { margin-top: 14px; display: flex; gap: 10px; }
   .controls button {
@@ -68,8 +75,10 @@
     font-size: 14px;
   }
   .controls button:hover { background: #666; }
-  @media (max-width: 700px) {
+  @media (max-width: 900px) {
     .side-arrow { width: 36px; height: 36px; font-size: 16px; }
+    .side-arrow.prev { left: 4px; }
+    .side-arrow.next { right: 4px; }
   }
 </style>
 </head>
@@ -77,9 +86,9 @@
 <div id="wrapper">
   <h1>Research Showcase Indonesian Scholars International Convention</h1>
   <div id="book-row">
-    <button class="side-arrow" onclick="pageFlip.flipPrev()" aria-label="Halaman sebelumnya">‹</button>
+    <button class="side-arrow prev" onclick="pageFlip.flipPrev()" aria-label="Halaman sebelumnya">‹</button>
     <div id="book"></div>
-    <button class="side-arrow" onclick="pageFlip.flipNext()" aria-label="Halaman berikutnya">›</button>
+    <button class="side-arrow next" onclick="pageFlip.flipNext()" aria-label="Halaman berikutnya">›</button>
   </div>
   <div class="controls">
     <button onclick="pageFlip.flipPrev()">‹ Sebelumnya</button>
