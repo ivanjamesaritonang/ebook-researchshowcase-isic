@@ -67,17 +67,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 <script>
-  // DAFTAR HALAMAN
-  // Ganti path di bawah ini dengan file gambar halaman kalian sendiri.
-  // Format: pages/nama-file.jpg (urut sesuai urutan baca)
-  const pageImages = [
-    "pages/page-01.jpg",
-    "pages/page-02.jpg",
-    "pages/page-03.jpg",
-    "pages/page-04.jpg",
-    "pages/page-05.jpg",
-    "pages/page-06.jpg"
-  ];
+  // DAFTAR HALAMAN — di-generate otomatis untuk 38 halaman
+  // Sesuai file asli: page-1.png, page-2.png, ... page-38.png (di root repo)
+  const TOTAL_PAGES = 38;
+  const pageImages = Array.from({ length: TOTAL_PAGES }, (_, i) => {
+    return `page-${i + 1}.png`;
+  });
 
   const bookEl = document.getElementById("book");
 
